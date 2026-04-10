@@ -9,61 +9,62 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-const fontSize = 20;
+const fontSize = 30;
 const columns = Math.floor(canvas.width / fontSize);
 const rows = Math.floor(canvas.height / fontSize);
+const drawChance = 0.15;
+
+// Pre-compute font
+ctx.font = `bold ${fontSize}px monospace`;
 
 // Create matrix of drops
 const drops = Array(columns).fill(0).map(() => Math.random() * rows);
 const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン❯❮▲▼◀▶●○◎◉◆';
 
 const colors = [
-  'rgba(168, 197, 216, 1)',     // primary
-  'rgba(139, 157, 195, 1)',     // secondary
-  'rgba(223, 231, 239, 1)',     // accent
-  'rgba(100, 200, 255, 1)',     // cyan
-  'rgba(150, 150, 255, 1)',     // blue
-  'rgba(100, 255, 200, 1)',     // mint
-  'rgba(255, 150, 200, 1)',     // pink
-  'rgba(255, 200, 100, 1)'      // orange
+  'rgba(168, 197, 216, 1)',
+  'rgba(139, 157, 195, 1)',
+  'rgba(223, 231, 239, 1)',
+  'rgba(100, 200, 255, 1)',
+  'rgba(150, 150, 255, 1)',
+  'rgba(100, 255, 200, 1)',
+  'rgba(255, 150, 200, 1)',
+  'rgba(255, 200, 100, 1)'
 ];
 
+let frameCounter = 0;
 function drawMatrix() {
-  // More opaque background for trail effect
-  ctx.fillStyle = 'rgba(30, 40, 60, 0.15)';
+  ctx.fillStyle = 'rgba(30, 40, 60, 0.04)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Add glow effect
-  ctx.shadowBlur = 10;
-  ctx.shadowColor = colors[Math.floor(Math.random() * colors.length)];
-
-  // Draw text
-  ctx.font = `bold ${fontSize}px monospace`;
-
   for (let i = 0; i < drops.length; i++) {
+    if (Math.random() > drawChance) continue;
+    
     const text = chars[Math.floor(Math.random() * chars.length)];
     const color = colors[Math.floor(Math.random() * colors.length)];
     ctx.fillStyle = color;
+    ctx.globalAlpha = 0.5;
     
     const y = drops[i] * fontSize;
     ctx.fillText(text, i * fontSize, y);
+    ctx.globalAlpha = 1;
 
-    // Faster drop speed
     if (y > canvas.height && Math.random() > 0.95) {
       drops[i] = 0;
     } else {
-      drops[i] += 1 + Math.random() * 1.5;
+      drops[i] += 0.5 + Math.random() * 0.8;
     }
   }
   
-  ctx.shadowBlur = 0;
+  frameCounter++;
+  if (frameCounter < 2) {
+    requestAnimationFrame(drawMatrix);
+  } else {
+    frameCounter = 0;
+    setTimeout(() => requestAnimationFrame(drawMatrix), 16);
+  }
 }
-
-function animate() {
-  drawMatrix();
-  requestAnimationFrame(animate);
-}
-animate();
+drawMatrix();
 
 // Smooth scroll behavior
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -79,19 +80,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   });
 });
 
-// Add subtle parallax effect to background shapes
-const shapes = document.querySelectorAll('.shape');
-window.addEventListener('mousemove', (e) => {
-  const mouseX = e.clientX / window.innerWidth;
-  const mouseY = e.clientY / window.innerHeight;
-
-  shapes.forEach((shape, index) => {
-    const offset = (index + 1) * 20;
-    const moveX = (mouseX - 0.5) * offset;
-    const moveY = (mouseY - 0.5) * offset;
-    shape.style.transform = `translate(${moveX}px, ${moveY}px)`;
-  });
-});
+// Subtle background only, no parallax—keep it chill
+// const shapes = document.querySelectorAll('.shape');
+// window.addEventListener('mousemove', (e) => { ... });
 
 // Intersection Observer for fade-in animations on scroll
 const observerOptions = {
