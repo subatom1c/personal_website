@@ -1,3 +1,30 @@
+// Theme Toggle
+const themeToggle = document.getElementById('theme-toggle');
+const htmlElement = document.documentElement;
+
+// Load saved theme preference
+const savedTheme = localStorage.getItem('theme') || 'dark';
+if (savedTheme === 'light') {
+  htmlElement.classList.add('light');
+  themeToggle.querySelector('.theme-icon').textContent = '☀️';
+} else {
+  htmlElement.classList.remove('light');
+  themeToggle.querySelector('.theme-icon').textContent = '🌙';
+}
+
+// Toggle theme on button click
+themeToggle.addEventListener('click', () => {
+  if (htmlElement.classList.contains('light')) {
+    htmlElement.classList.remove('light');
+    localStorage.setItem('theme', 'dark');
+    themeToggle.querySelector('.theme-icon').textContent = '🌙';
+  } else {
+    htmlElement.classList.add('light');
+    localStorage.setItem('theme', 'light');
+    themeToggle.querySelector('.theme-icon').textContent = '☀️';
+  }
+});
+
 // Matrix Canvas Animation
 const canvas = document.getElementById('matrix-canvas');
 const ctx = canvas.getContext('2d');
